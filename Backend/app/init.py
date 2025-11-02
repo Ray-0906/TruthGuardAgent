@@ -1,12 +1,25 @@
 from flask import Flask
 from flask_cors import CORS
 from app.config import Config
-from integrations.adk_client import warmup
+from integrations.adk_client_gcp import warmup
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    CORS(app)
+    
+    # Configure CORS with specific origins
+    CORS(app, resources={
+        r"/*": {
+            "origins": [
+                "http://localhost:3000",
+                "http://34.122.181.2:3000",
+                "http://127.0.0.1:3000"
+            ],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
 
     from adapters.routes import bp
     app.register_blueprint(bp)
