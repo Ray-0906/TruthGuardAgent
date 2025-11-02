@@ -44,7 +44,9 @@ function Console() {
     });
 
     try {
-      const res = await api.post('/verify', { text });
+      const res = await api.post('/verify_for_frontend_extension_app', {
+        text,
+      });
       setResults(res.data);
     } catch (err) {
       setResults({ error: 'Verification failed, try again.' });

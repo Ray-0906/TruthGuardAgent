@@ -1,9 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import ServiceImageDisplay from '../components/ServiceImageDisplay';
+import extensionPopup from '../assets/services/extension-1.png';
+import extensionResult from '../assets/services/extension-2.png';
+import whatsappImage from '../assets/services/whatsapp.jpeg';
+import telegramImage from '../assets/services/telegram.jpeg';
 
 function Services() {
   const titleRef = useRef(null);
-  const cardsRef = useRef([]);
+  const sectionsRef = useRef([]);
 
   useEffect(() => {
     // Smooth title animation with gentle fade
@@ -18,67 +23,69 @@ function Services() {
       }
     );
 
-    // Smooth, gentle card animations with staggered effect - no scroll trigger
-    cardsRef.current.forEach((card, index) => {
-      if (card) {
-        // Alternating subtle slide from left/right
-        const fromX = index % 2 === 0 ? -100 : 100;
-
+    // Animate sections on mount
+    sectionsRef.current.forEach((section, index) => {
+      if (section) {
         gsap.fromTo(
-          card,
+          section,
           {
             opacity: 0,
-            x: fromX,
-            y: 30,
-            scale: 1,
+            y: 50,
           },
           {
             opacity: 1,
-            x: 0,
             y: 0,
-            scale: 1,
-            delay: 0.3,
+            duration: 0.8,
+            delay: 0.2 + index * 0.2,
+            ease: 'power2.out',
           }
         );
-
-        // Add gentle floating hover effect
-        card.addEventListener('mouseenter', () => {
-          gsap.to(card, {
-            y: -8,
-            duration: 0.4,
-            ease: 'power2.out',
-          });
-        });
-
-        card.addEventListener('mouseleave', () => {
-          gsap.to(card, {
-            y: 0,
-            duration: 0.4,
-            ease: 'power2.out',
-          });
-        });
       }
     });
-
-    // Cleanup event listeners
-    return () => {
-      cardsRef.current.forEach((card) => {
-        if (card) {
-          card.removeEventListener('mouseenter', () => {});
-          card.removeEventListener('mouseleave', () => {});
-        }
-      });
-    };
   }, []);
 
   const services = [
+    {
+      icon: '🔌',
+      title: 'Browser Extension',
+      description:
+        'Highlight and fact-check information on any website instantly. Works on Chrome, Firefox, and Edge.',
+      color: 'from-purple-500 to-pink-600',
+      features: [
+        'Quick select',
+        'Auto-scan',
+        'Save reports',
+        'Download markdown reports',
+      ],
+      images: [
+        {
+          src: extensionPopup,
+          alt: 'Browser extension popup',
+        },
+        {
+          src: extensionResult,
+          alt: 'Browser extension verification result',
+        },
+      ],
+    },
     {
       icon: '💬',
       title: 'WhatsApp Verification',
       description:
         'Use our WhatsApp bot for easy fact-checking within chats. Just send a message and get instant verification.',
       color: 'from-green-500 to-emerald-600',
-      features: ['Instant responses', 'Group support', 'Private chats'],
+      features: [
+        'Instant responses',
+        'Group support',
+        'Private chats',
+        'Markdown formatted reports',
+      ],
+      images: [
+        {
+          src: whatsappImage,
+          alt: 'WhatsApp verification bot in action',
+        },
+      ],
     },
     {
       icon: '✈️',
@@ -86,23 +93,18 @@ function Services() {
       description:
         'Verify claims right inside Telegram groups or private messages. Fast, reliable, and always online.',
       color: 'from-blue-500 to-cyan-600',
-      features: ['Bot commands', 'Inline mode', 'Channel support'],
-    },
-    {
-      icon: '🔌',
-      title: 'Browser Extension',
-      description:
-        'Highlight and fact-check information on any website instantly. Works on Chrome, Firefox, and Edge.',
-      color: 'from-purple-500 to-pink-600',
-      features: ['Quick select', 'Auto-scan', 'Save reports'],
-    },
-    {
-      icon: '💻',
-      title: 'Desktop App',
-      description:
-        'Standalone desktop solution for batch or deep verification. Perfect for researchers and journalists.',
-      color: 'from-orange-500 to-red-600',
-      features: ['Batch processing', 'Export data', 'Offline mode'],
+      features: [
+        'Bot commands',
+        'Inline mode',
+        'Channel support',
+        'Clickable source links',
+      ],
+      images: [
+        {
+          src: telegramImage,
+          alt: 'Telegram bot verification',
+        },
+      ],
     },
   ];
 
@@ -110,12 +112,8 @@ function Services() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 pt-24 pb-12 px-6">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full opacity-10 blur-3xl animate-pulse"
-          />
-        ))}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-700"></div>
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
@@ -134,70 +132,72 @@ function Services() {
           <div className="mt-6 h-1 w-32 mx-auto bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        {/* Services Sections - Horizontal Layout (Text Left, Images Right) */}
+        <div className="space-y-12 mb-16">
           {services.map((service, index) => (
             <div
               key={index}
-              ref={(el) => (cardsRef.current[index] = el)}
-              className="group relative backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 hover:bg-white/15 transition-all duration-700 hover:shadow-2xl hover:border-white/30"
-              style={{ perspective: '1000px', opacity: 0 }}
+              ref={(el) => (sectionsRef.current[index] = el)}
+              className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 hover:bg-white/15 transition-all duration-700 hover:shadow-2xl hover:border-white/30"
+              style={{ opacity: 0 }}
             >
-              {/* Gradient glow on hover */}
+              {/* Horizontal Layout: Conditional order based on service */}
               <div
-                className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-15 blur-xl transition-opacity duration-700`}
-              ></div>
-
-              {/* Content */}
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="text-6xl mb-6 px-4 pt-4 transform group-hover:scale-110 transition-transform duration-700 ease-out">
-                  {service.icon}
-                </div>
-
-                {/* Title */}
-                <h2
-                  className={`text-3xl font-bold mb-4 bg-gradient-to-r ${service.color} bg-clip-text text-transparent pb-4`}
-                >
-                  {service.title}
-                </h2>
-
-                {/* Description */}
-                <p className="text-white/80 text-lg mb-6 leading-relaxed">
-                  {service.description}
-                </p>
-
-                {/* Features */}
-                <div className="space-y-2">
-                  {service.features.map((feature, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center space-x-2 text-white/70"
+                className={`flex flex-col lg:flex-row gap-8 items-start ${
+                  service.title === 'WhatsApp Verification'
+                    ? 'lg:flex-row-reverse'
+                    : ''
+                }`}
+              >
+                {/* Text Content */}
+                <div className="flex-1 min-w-0">
+                  {/* Service Header */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="text-7xl">{service.icon}</div>
+                    <h2
+                      className={`text-5xl font-bold pb-4 bg-gradient-to-r ${service.color} bg-clip-text text-transparent`}
                     >
-                      <svg
-                        className="w-5 h-5 text-green-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                      {service.title}
+                    </h2>
+                  </div>
+
+                  <p className="text-white/80 text-xl mb-8 leading-relaxed">
+                    {service.description}
+                  </p>
+
+                  {/* Features */}
+                  <div className="flex flex-wrap gap-3">
+                    {service.features.map((feature, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center space-x-2 backdrop-blur-sm bg-white/5 px-4 py-2.5 rounded-full border border-white/10"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <span>{feature}</span>
-                    </div>
-                  ))}
+                        <svg
+                          className="w-5 h-5 text-green-400 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        <span className="text-white/70 text-base">
+                          {feature}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* CTA Button */}
-                <button
-                  className={`mt-6 w-full bg-gradient-to-r ${service.color} text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-500 hover:scale-[1.02]`}
-                >
-                  Learn More →
-                </button>
+                {/* Images */}
+                <ServiceImageDisplay
+                  images={service.images}
+                  serviceTitle={service.title}
+                />
               </div>
             </div>
           ))}
